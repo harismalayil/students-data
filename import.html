@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Students - KEMHS</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #333; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 12px; max-width: 650px; margin: 40px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        h1 { color: #0b4f8a; margin-top: 0; font-size: 24px; text-align: center; }
+        .instruction { font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.5; }
+        input[type="file"] { width: 100%; padding: 15px; margin: 10px 0 20px; border: 2px dashed #cbd5e1; border-radius: 8px; cursor: pointer; }
+        button { background: #0b4f8a; color: white; border: none; padding: 14px 20px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; transition: background 0.2s; }
+        button:hover { background: #083a66; }
+        button:disabled { background: #94a3b8; cursor: not-allowed; }
+        
+        #statusArea { margin-top: 30px; display: none; }
+        .progress-wrapper { width: 100%; background: #e2e8f0; height: 12px; border-radius: 6px; margin: 15px 0; overflow: hidden; }
+        #progressBar { width: 0%; height: 100%; background: #16a34a; transition: width 0.3s ease; }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .stat-card { padding: 15px; border-radius: 8px; text-align: center; background: #f8fafc; border: 1px solid #e2e8f0; }
+        .stat-card div:first-child { font-size: 12px; text-transform: uppercase; color: #64748b; margin-bottom: 5px; }
+        .stat-card div:last-child { font-size: 20px; font-weight: bold; }
+        .success-text { color: #16a34a; }
+        .skipped-text { color: #f59e0b; }
+        .error-text { color: #dc2626; }
+        
+        #log { margin-top: 20px; font-size: 13px; max-height: 150px; overflow-y: auto; background: #1e293b; color: #cbd5e1; padding: 10px; border-radius: 6px; }
+        .back-link { display: block; text-align: center; margin-top: 25px; color: #0b4f8a; text-decoration: none; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Excel Student Importer</h1>
+        <div class="instruction">
+            Ensure your Excel file contains these exact headers: <br>
+            <strong>ADMN.NO, NAME OF STUDENT, CLASS, DIVISION, PARENT NAME, ADDRESS, PHONE, ROUTE, VEHICLE NO</strong>
+        </div>
+        
+        <input type="file" id="excelFile" accept=".xlsx, .xls">
+        <button id="startBtn">Import Students</button>
+
+        <div id="statusArea">
+            <div id="currentAction" style="font-weight: bold; margin-bottom: 5px;">Uploading...</div>
+            <div class="progress-wrapper">
+                <div id="progressBar"></div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div>Imported</div>
+                    <div id="successCount" class="success-text">0</div>
+                </div>
+                <div class="stat-card">
+                    <div>Skipped</div>
+                    <div id="skippedCount" class="skipped-text">0</div>
+                </div>
+                <div class="stat-card">
+                    <div>Duplicates / Failed</div>
+                    <div id="failedCount" class="error-text">0</div>
+                </div>
+            </div>
+            <div id="log"></div>
+        </div>
+
+        <a href="admin.html" class="back-link">Return to Admin Dashboard</a>
+    </div>
+
+    <script type="module">
+        import { db, hasFirebaseConfig } from "./jsfirebase.js";
+        import { 
+            collection, addDoc, getDocs, query, where 
+        } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
+
+        const fileInput = document.getElementById('excelFile');
+        const startBtn = document.getElementById('startBtn');
+        const statusArea = document.getElementById('statusArea');
+        const progressBar = document.getElementById('progressBar');
+        const currentAction = document.getElementById('currentAction');
+        const successEl = document.getElementById('successCount');
+        const skippedEl = document.getElementById('skippedCount');
+        const failedEl = document.getElementById('failedCount');
+        const logEl = document.getElementById('log');
+
+        function addLog(msg) {
+            const div = document.createElement('div');
+            div.textContent = `> ${msg}`;
+            logEl.prepend(div);
+        }
+
+        startBtn.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) return alert("Select an Excel file first.");
+            if (!hasFirebaseConfig) return alert("Firebase configuration is missing.");
+
+            startBtn.disabled = true;
+            statusArea.style.display = 'block';
+            addLog("Reading Excel file...");
+            
+            try {
+                const data = await file.arrayBuffer();
+                const workbook = XLSX.read(data);
+                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+
+                if (rows.length === 0) throw new Error("File is empty.");
+
+                let imported = 0;
+                let skipped = 0;
+                let failed = 0;
+                const total = rows.length;
+
+                for (let i = 0; i < total; i++) {
+                    const row = rows[i];
+                    const admissionNo = String(row["ADMN.NO"] || "").trim();
+                    
+                    if (!admissionNo) {
+                        failed++;
+                        addLog(`Row ${i+2}: Missing Admission Number. Skipping.`);
+                        continue;
+                    }
+
+                    // Mapping based on your requirements
+                    const studentData = {
+                        admissionNo: admissionNo,
+                        name: String(row["NAME OF STUDENT"] || "").trim(),
+                        class: String(row["CLASS"] || "").trim(),
+                        division: String(row["DIVISION"] || "").trim(),
+                        parentName: String(row["PARENT NAME"] || "").trim(),
+                        address: String(row["ADDRESS"] || "").trim(),
+                        phone: String(row["PHONE"] || "").trim(),
+                        route: String(row["ROUTE"] || "").trim(),
+                        vehicleNo: String(row["VEHICLE NO"] || "").trim(),
+                        photo: ""
+                    };
+
+                    // Duplicate Prevention
+                    const q = query(collection(db, "students"), where("admissionNo", "==", admissionNo));
+                    const snapshot = await getDocs(q);
+
+                    if (snapshot.empty) {
+                        await addDoc(collection(db, "students"), studentData);
+                        imported++;
+                    } else {
+                        skipped++;
+                        addLog(`Skip: ${admissionNo} already exists.`);
+                    }
+
+                    // Update UI Progress
+                    const percent = Math.round(((i + 1) / total) * 100);
+                    progressBar.style.width = percent + '%';
+                    currentAction.textContent = `Processing ${i + 1} of ${total}...`;
+                    successEl.textContent = imported;
+                    skippedEl.textContent = skipped;
+                    failedEl.textContent = failed;
+                }
+                currentAction.textContent = "Processing Finished!";
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                startBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
