@@ -1,0 +1,166 @@
+/* Reset */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+    color:#333;
+}
+
+/* Header */
+
+header{
+    background:#0b4f8a;
+    color:white;
+    text-align:center;
+    padding:20px;
+}
+
+header h1{
+    font-size:28px;
+    margin-bottom:5px;
+}
+
+header p{
+    font-size:14px;
+}
+
+/* Main Container */
+
+.container{
+    width:95%;
+    max-width:1200px;
+    margin:20px auto;
+}
+
+/* Search Section */
+
+.filters{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+
+.filters input,
+.filters select{
+    flex:1;
+    min-width:200px;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:6px;
+    outline:none;
+}
+
+.filters input:focus,
+.filters select:focus{
+    border-color:#0b4f8a;
+}
+
+/* Student Cards */
+
+.students-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+    gap:20px;
+}
+
+.student-card{
+    background:white;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    transition:0.3s;
+}
+
+.student-card:hover{
+    transform:translateY(-4px);
+}
+
+.student-photo{
+    width:100%;
+    height:250px;
+    object-fit:cover;
+}
+
+.student-info{
+    padding:15px;
+}
+
+.student-info h3{
+    color:#0b4f8a;
+    margin-bottom:10px;
+}
+
+.student-info p{
+    margin-bottom:5px;
+    font-size:14px;
+}
+
+/* Buttons */
+
+.btn{
+    display:inline-block;
+    background:#0b4f8a;
+    color:white;
+    text-decoration:none;
+    padding:10px 15px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.btn:hover{
+    background:#08365f;
+}
+
+.btn-danger{
+    background:#d32f2f;
+}
+
+.btn-danger:hover{
+    background:#a30000;
+}
+
+/* No Data */
+
+.no-data{
+    text-align:center;
+    margin-top:40px;
+    font-size:18px;
+    color:#777;
+}
+
+/* Footer */
+
+.footer{
+    background:#0b4f8a;
+    color:white;
+    text-align:center;
+    padding:15px;
+    margin-top:30px;
+}
+
+/* Responsive */
+
+@media(max-width:768px){
+
+    header h1{
+        font-size:22px;
+    }
+
+    .filters{
+        flex-direction:column;
+    }
+
+    .filters input,
+    .filters select{
+        width:100%;
+    }
+
+}

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KEMHS Student Directory</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, sans-serif;
+        }
+
+        body{
+            background:#f4f6f9;
+        }
+
+        header{
+            background:#0b4f8a;
+            color:white;
+            text-align:center;
+            padding:20px;
+        }
+
+        header h1{
+            margin-bottom:5px;
+        }
+
+        .container{
+            width:95%;
+            max-width:1200px;
+            margin:20px auto;
+        }
+
+        .filters{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-bottom:20px;
+        }
+
+        .filters input,
+        .filters select{
+            padding:12px;
+            border:1px solid #ccc;
+            border-radius:6px;
+            flex:1;
+        }
+
+        .students-grid{
+            display:grid;
+            grid-template-columns:repeat(6, 1fr);
+            gap:20px;
+        }
+
+        .student-card{
+            background:white;
+            border-radius:10px;
+            overflow:hidden;
+            box-shadow:0 2px 8px rgba(0,0,0,0.1);
+            transition:.3s;
+        }
+
+        .student-card:hover{
+            transform:translateY(-3px);
+        }
+
+        .student-photo{
+            width:100%;
+            height:160px;
+            object-fit:cover;
+        }
+
+        .student-photo.placeholder{
+            object-position:center;
+            background:#e9eef5;
+        }
+
+        .student-info{
+            padding:15px;
+        }
+
+        .student-info h3{
+            color:#0b4f8a;
+            margin-bottom:8px;
+        }
+
+        .student-info p{
+            margin:5px 0;
+        }
+
+        .footer{
+            text-align:center;
+            padding:20px;
+            margin-top:30px;
+            background:#0b4f8a;
+            color:white;
+        }
+
+        .no-data{
+            text-align:center;
+            font-size:18px;
+            color:#777;
+            margin-top:30px;
+        }
+
+        .student-card{
+            cursor:pointer;
+        }
+
+        .student-name{
+            cursor:pointer;
+        }
+
+        @media (max-width: 1024px) {
+            .students-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.5rem; }
+            .students-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+            .student-photo { height: 130px; }
+        }
+
+        @media (max-width: 480px) {
+            header { padding: 15px 10px; }
+            header h1 { font-size: 1.2rem; }
+            .students-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .student-info { padding: 10px; }
+            .student-info h3 { font-size: 0.9rem; }
+            .student-info p { font-size: 0.8rem; margin: 2px 0; }
+            .student-photo { height: 110px; }
+        }
+
+        .student-modal{
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,.55);
+            display:none;
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+            z-index:1000;
+        }
+
+        .student-modal.open{
+            display:flex;
+        }
+
+        .student-modal-content{
+            width:min(92vw,520px);
+            max-height:90vh;
+            overflow:auto;
+            background:white;
+            border-radius:16px;
+            box-shadow:0 20px 60px rgba(0,0,0,.25);
+            position:relative;
+        }
+
+        .student-modal-header img{
+            width:100%;
+            height:320px;
+            object-fit:cover;
+            display:block;
+            border-top-left-radius:16px;
+            border-top-right-radius:16px;
+        }
+
+        .student-modal-body{
+            padding:20px;
+        }
+
+        .student-modal-body h3{
+            color:#0b4f8a;
+            font-size:28px;
+            margin-bottom:12px;
+        }
+
+        .detail-row{
+            margin:10px 0;
+            color:#333;
+            line-height:1.5;
+        }
+
+        .student-details-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:10px 18px;
+            margin-top:16px;
+        }
+
+        .detail-label{
+            font-weight:bold;
+            color:#0b4f8a;
+        }
+
+        .close-modal{
+            position:absolute;
+            top:12px;
+            right:12px;
+            width:40px;
+            height:40px;
+            border:none;
+            border-radius:50%;
+            background:rgba(11,79,138,.95);
+            color:white;
+            font-size:22px;
+            line-height:1;
+            cursor:pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>KHUTHUZZAMAN ENGLISH MEDIUM HIGH SCHOOL</h1>
+    <p>Student Directory</p>
+</header>
+
+<div class="container">
+
+    <div class="filters">
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by Name or Admission No">
+
+        <select id="classFilter">
+            <option value="">All Classes</option>
+            <option>LKG</option>
+            <option>UKG</option>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+            <option>6</option>
+            <option>7</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>
+            <option>Plus One</option>
+            <option>Plus Two</option>
+        </select>
+
+        <select id="divisionFilter">
+            <option value="">All Divisions</option>
+            <option>A</option>
+            <option>B</option>
+            <option>C</option>
+            <option>D</option>
+            <option>E</option>
+            <option>F</option>
+            <option>G</option>
+        </select>
+    </div>
+
+    <div class="students-grid" id="studentsContainer">
+
+    </div>
+
+    <div class="no-data" id="noData" style="display:none;">
+        No Students Found
+    </div>
+
+</div>
+
+<div class="footer">
+    © 2026 Khuthuzzaman English Medium High School
+</div>
+
+<div class="student-modal" id="studentModal" aria-hidden="true">
+    <div class="student-modal-content">
+        <button class="close-modal" type="button" onclick="closeStudentDetails()">&times;</button>
+        <div class="student-modal-header">
+            <img id="detailPhoto" src="" alt="Student photo">
+        </div>
+        <div class="student-modal-body">
+            <h3 id="detailName"></h3>
+            <div class="detail-row"><span class="detail-label">Admission No:</span> <span id="detailAdmissionNo"></span></div>
+            <div class="detail-row"><span class="detail-label">Class:</span> <span id="detailClass"></span></div>
+            <div class="detail-row"><span class="detail-label">Name of Parent:</span> <span id="detailFatherName"></span></div>
+            <div class="detail-row"><span class="detail-label">Mother Name:</span> <span id="detailMotherName"></span></div>
+            <div class="detail-row"><span class="detail-label">Phone:</span> <span id="detailPhone"></span></div>
+            <div class="student-details-grid" id="detailExtras"></div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+
+import { db, hasFirebaseConfig } from "./jsfirebase.js";
+
+import {
+    collection,
+    getDocs
+}
+from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+const STUDENT_STORAGE_KEY = "kemhs-students";
+const PLACEHOLDER_PHOTO = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="#e9eef5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="28">No Photo</text></svg>`);
+
+let students = [];
+
+function readLocalStudents(){
+
+    const raw = localStorage.getItem(STUDENT_STORAGE_KEY);
+
+    if(!raw){
+
+        return [];
+
+    }
+
+    try{
+
+        return JSON.parse(raw);
+
+    }catch(error){
+
+        return [];
+
+    }
+
+}
+
+function displayStudents(data){
+
+    const container =
+        document.getElementById("studentsContainer");
+
+    container.innerHTML = "";
+
+    if(data.length === 0){
+        document.getElementById("noData").style.display="block";
+        return;
+    }
+
+    document.getElementById("noData").style.display="none";
+
+    data.forEach((student, index) => {
+
+        const classValue = student.class || student.standard || "";
+        const divisionValue = student.division || "";
+        const classSummary = classValue && divisionValue && !String(classValue).toLowerCase().includes(String(divisionValue).toLowerCase())
+            ? `${classValue} ${divisionValue}`
+            : (classValue || divisionValue || "-");
+        const admissionSummary = student.admissionNo || student.studentsId || "-";
+        const studentJson = JSON.stringify(student).replace(/</g, "\\u003c");
+
+        container.innerHTML += `
+        <div class="student-card" data-student='${studentJson}' onclick='openStudentDetails(JSON.parse(this.dataset.student))'>
+
+            <img
+                src="${student.photo || PLACEHOLDER_PHOTO}"
+                class="student-photo${student.photo ? "" : " placeholder"}"
+                alt="${student.name} photo">
+
+            <div class="student-info">
+                <h3 class="student-name" role="button" tabindex="0" onclick="event.stopPropagation(); openStudentDetails(JSON.parse(this.closest('.student-card').dataset.student))">${student.name}</h3>
+                <p><strong>Admission No:</strong> ${admissionSummary}</p>
+                <p><strong>Class / Division:</strong> ${classSummary}</p>
+                ${divisionValue ? `<p><strong>Division:</strong> ${divisionValue}</p>` : ""}
+            </div>
+
+        </div>
+        `;
+    });
+
+}
+
+window.openStudentDetails = function(student){
+
+    document.getElementById("detailPhoto").src = student.photo || PLACEHOLDER_PHOTO;
+    document.getElementById("detailName").textContent = student.name || "Student Details";
+    document.getElementById("detailAdmissionNo").textContent = student.admissionNo || student.studentsId || "-";
+    const detailClassValue = student.class || student.standard || "";
+    const detailDivisionValue = student.division || "";
+    document.getElementById("detailClass").textContent = detailClassValue && detailDivisionValue && !String(detailClassValue).toLowerCase().includes(String(detailDivisionValue).toLowerCase())
+        ? `${detailClassValue} ${detailDivisionValue}`
+        : (detailClassValue || detailDivisionValue || "-");
+    document.getElementById("detailFatherName").textContent = student.parentName || student.fatherName || "-";
+    document.getElementById("detailMotherName").textContent = student.motherName || "-";
+    document.getElementById("detailPhone").textContent = student.phone || "-";
+    const detailExtras = document.getElementById("detailExtras");
+    const detailFields = [
+        ["Serial No", student.serialNo],
+        ["Division", student.division],
+        ["Route Point (Primary)", student.route],
+        ["Route Point (Secondary)", student.routeSecondary || "-"],
+        ["Vehicle Number", student.vehicleNo],
+        ["Address", student.address],
+        ["Student ID", student.studentsId],
+        ["Mobile No", student.mobileNo],
+        ["UID", student.uid],
+        ["Date of Birth", student.dateOfBirth],
+        ["Date of Admission", student.dateOfAdmission],
+        ["Transport Name", student.transportName],
+        ["Place", student.place],
+        ["Place Monthly Amt", student.placeMonthlyAmt],
+        ["Place Mor", student.placeMor],
+        ["Family ID", student.familyId],
+        ["Gender", student.gender]
+    ];
+    detailExtras.innerHTML = detailFields
+        .filter(([, value]) => value)
+        .map(([label, value]) => `<div class="detail-row"><span class="detail-label">${label}:</span> <span>${value}</span></div>`)
+        .join("");
+    document.getElementById("studentModal").classList.add("open");
+    document.getElementById("studentModal").setAttribute("aria-hidden", "false");
+
+};
+
+window.closeStudentDetails = function(){
+
+    document.getElementById("studentModal").classList.remove("open");
+    document.getElementById("studentModal").setAttribute("aria-hidden", "true");
+
+};
+
+document.getElementById("studentModal").addEventListener("click", function(event){
+
+    if(event.target === this){
+
+        closeStudentDetails();
+
+    }
+
+});
+
+document.addEventListener("keydown", function(event){
+
+    if(event.key === "Escape"){
+
+        closeStudentDetails();
+
+    }
+
+});
+
+document.getElementById("searchInput")
+.addEventListener("keyup", filterStudents);
+
+document.getElementById("classFilter")
+.addEventListener("change", filterStudents);
+
+document.getElementById("divisionFilter")
+.addEventListener("change", filterStudents);
+
+function filterStudents(){
+
+    let search =
+        document.getElementById("searchInput")
+        .value
+        .toLowerCase();
+
+    let selectedClass =
+        document.getElementById("classFilter")
+        .value;
+
+    let selectedDivision =
+        document.getElementById("divisionFilter")
+        .value;
+
+    let filtered =
+        students.filter(student => {
+
+        let matchSearch =
+            student.name.toLowerCase().includes(search) ||
+            student.admissionNo.toLowerCase().includes(search);
+
+        let matchClass =
+            selectedClass === "" ||
+            student.class === selectedClass;
+
+        let matchDivision =
+            selectedDivision === "" ||
+            student.division === selectedDivision;
+
+        return matchSearch && matchClass && matchDivision;
+
+    });
+
+    displayStudents(filtered);
+}
+
+async function loadStudents(){
+
+    try {
+        if(hasFirebaseConfig && db){
+            const querySnapshot = await getDocs(collection(db, "students"));
+            students = [];
+            querySnapshot.forEach((docSnap) => {
+                students.push(docSnap.data());
+            });
+            console.log("Students loaded from Firebase:", students.length);
+        } else {
+            // If Firebase is not configured, or db is null, directly use local storage
+            console.warn("Firebase not configured or DB not initialized, attempting local storage fallback.");
+            students = readLocalStudents();
+        }
+    } catch (error) {
+        console.error("Error loading students from Firebase:", error);
+        // Fallback to local storage if Firebase fails
+        students = readLocalStudents();
+        console.warn("Falling back to local storage due to Firebase error.");
+    }
+    displayStudents(students);
+}
+
+loadStudents();
+
+</script>
+
+</body>
+</html>

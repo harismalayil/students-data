@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KEMHS Admin Dashboard</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+}
+
+header{
+    background:#0b4f8a;
+    color:white;
+    padding:15px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logout-btn{
+    background:red;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.container{
+    width:95%;
+    max-width:1200px;
+    margin:20px auto;
+}
+
+.form-box{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    margin-bottom:20px;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+.form-box h2{
+    margin-bottom:15px;
+}
+
+input,select{
+    width:100%;
+    padding:12px;
+    margin-bottom:10px;
+    border:1px solid #ccc;
+    border-radius:6px;
+}
+
+button{
+    background:#0b4f8a;
+    color:white;
+    border:none;
+    padding:12px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.secondary-btn{
+    background:#64748b;
+}
+
+.bulk-actions{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    margin:0 0 16px;
+    padding:14px 16px;
+    background:white;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.bulk-actions label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:14px;
+    color:#334155;
+}
+
+.bulk-actions input[type="checkbox"]{
+    width:16px;
+    height:16px;
+    margin:0;
+}
+
+.bulk-delete-btn{
+    background:#b91c1c;
+}
+
+.bulk-delete-btn:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+
+.students-grid{
+    display:grid;
+    grid-template-columns:repeat(6, 1fr);
+    gap:20px;
+}
+
+.student-card{
+    background:white;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+.student-card img{
+    width:100%;
+    height:160px;
+    object-fit:cover;
+}
+
+.student-info{
+    padding:15px;
+}
+
+.delete-btn{
+    background:red;
+    width:100%;
+    margin-top:10px;
+}
+
+.edit-btn{
+    background:#16a34a;
+    width:100%;
+    margin-top:10px;
+}
+
+.import-box{
+    margin-top:20px;
+    padding-top:20px;
+    border-top:1px solid #e5e5e5;
+}
+
+.import-box h3{
+    margin-bottom:12px;
+}
+
+.helper-text{
+    font-size:14px;
+    color:#666;
+    margin-bottom:10px;
+}
+
+@media (max-width: 1024px) {
+    .students-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        gap: 12px;
+        gap: 10px;
+        text-align: center;
+        padding: 10px;
+    }
+    .students-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+    .student-card img { height: 130px; }
+    .bulk-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .bulk-actions label {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .students-grid {
+        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .student-info { padding: 10px; }
+    .student-info h3 { font-size: 0.9rem; }
+    .student-info p { font-size: 0.8rem; }
+    .student-card img { height: 110px; }
+    button { padding: 8px; font-size: 13px; }
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2>KEMHS Admin Dashboard</h2>
+
+    <button class="logout-btn" onclick="logout()">
+        Logout
+    </button>
+</header>
+
+<div class="container">
+
+    <div class="form-box">
+
+        <h2>Add Student</h2>
+
+        <input type="text" id="admissionNo" placeholder="Admission Number">
+
+        <input type="text" id="studentName" placeholder="Student Name">
+
+        <input type="text" id="fatherName" placeholder="Father Name">
+
+        <input type="text" id="motherName" placeholder="Mother Name">
+
+        <input type="text" id="phone" placeholder="Phone Number">
+
+        <input type="text" id="route" placeholder="Route Point (Primary)">
+
+        <input type="text" id="routeSecondary" placeholder="Route Point (Secondary)">
+
+        <input type="text" id="vehicleNo" placeholder="Vehicle Number">
+
+        <select id="studentClass">
+            <option value="">Select Class</option>
+            <option>LKG</option>
+            <option>UKG</option>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+            <option>6</option>
+            <option>7</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>
+            <option>Plus One</option>
+            <option>Plus Two</option>
+        </select>
+
+        <select id="studentDivision">
+            <option value="">Select Division</option>
+            <option>A</option>
+            <option>B</option>
+            <option>C</option>
+            <option>D</option>
+            <option>E</option>
+            <option>F</option>
+            <option>G</option>
+        </select>
+
+        <input type="file" id="photo">
+
+        <button onclick="addStudent()">
+            Save Student
+        </button>
+
+        <button type="button" class="secondary-btn" onclick="cancelEdit()">
+            Cancel Edit
+        </button>
+
+        <div class="import-box">
+
+            <h3>Import From Excel</h3>
+
+            <p class="helper-text">
+                Upload an Excel file with columns like Admission No, Student Name, Father Name, Mother Name, Phone, and Class. Photo can be added later.
+            </p>
+
+            <input type="file" id="excelFile" accept=".xlsx,.xls">
+
+            <button type="button" onclick="importStudentsFromExcel()">
+                Import Excel
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="bulk-actions">
+        <label>
+            <input type="checkbox" id="selectAllStudents" onchange="toggleSelectAllStudents(this.checked)">
+            Select All
+        </label>
+
+        <button type="button" class="bulk-delete-btn" id="bulkDeleteBtn" onclick="deleteSelectedStudents()" disabled>
+            Delete Selected
+        </button>
+    </div>
+
+    <div class="students-grid" id="studentList">
+
+    </div>
+
+</div>
+
+<script type="module">
+
+import { db, storage, auth, hasFirebaseConfig }
+from "./jsfirebase.js";
+
+import {
+collection,
+addDoc,
+getDocs,
+deleteDoc,
+doc,
+updateDoc
+}
+from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+import {
+ref,
+uploadBytes,
+getDownloadURL
+}
+from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
+
+import {
+signOut
+}
+from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+import * as XLSX
+from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
+
+const STUDENT_STORAGE_KEY = "kemhs-students";
+const PLACEHOLDER_PHOTO = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="#e9eef5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="28">No Photo</text></svg>`);
+let editingStudentId = null;
+let editingStudentPhoto = "";
+let currentStudents = [];
+let selectedStudentIds = new Set();
+
+function getFormValues(){
+
+return {
+
+admissionNo: document.getElementById("admissionNo").value.trim(),
+name: document.getElementById("studentName").value.trim(),
+fatherName: document.getElementById("fatherName").value.trim(),
+motherName: document.getElementById("motherName").value.trim(),
+phone: document.getElementById("phone").value.trim(),
+class: document.getElementById("studentClass").value,
+division: document.getElementById("studentDivision").value,
+route: document.getElementById("route").value.trim(),
+routeSecondary: document.getElementById("routeSecondary").value.trim(),
+vehicleNo: document.getElementById("vehicleNo").value.trim(),
+file: document.getElementById("photo").files[0]
+
+};
+
+}
+
+function setFormMode(student){
+
+editingStudentId = student ? student.id : null;
+editingStudentPhoto = student && student.photo ? student.photo : "";
+
+document.querySelector(".form-box h2").textContent = student ? "Edit Student" : "Add Student";
+document.querySelector(".form-box button[onclick='addStudent()']").textContent = student ? "Update Student" : "Save Student";
+
+document.getElementById("admissionNo").value = student ? (student.admissionNo || "") : "";
+document.getElementById("studentName").value = student ? (student.name || "") : "";
+document.getElementById("fatherName").value = student ? (student.fatherName || "") : "";
+document.getElementById("motherName").value = student ? (student.motherName || "") : "";
+document.getElementById("phone").value = student ? (student.phone || "") : "";
+document.getElementById("studentClass").value = student ? (student.class || "") : "";
+document.getElementById("studentDivision").value = student ? (student.division || "") : "";
+document.getElementById("route").value = student ? (student.route || "") : "";
+document.getElementById("routeSecondary").value = student ? (student.routeSecondary || "") : "";
+document.getElementById("vehicleNo").value = student ? (student.vehicleNo || "") : "";
+document.getElementById("photo").value = "";
+
+}
+
+function getUpdatedStudent(existingStudent, formValues, photoURL){
+
+return {
+
+...existingStudent,
+admissionNo: formValues.admissionNo,
+name: formValues.name,
+fatherName: formValues.fatherName,
+motherName: formValues.motherName,
+phone: formValues.phone,
+class: formValues.class,
+division: formValues.division,
+route: formValues.route,
+routeSecondary: formValues.routeSecondary,
+vehicleNo: formValues.vehicleNo,
+photo: photoURL
+
+};
+
+}
+
+function updateLocalStudent(id, updatedStudent){
+
+const students = readLocalStudents().map((student) => student.id === id ? updatedStudent : student);
+
+writeLocalStudents(students);
+
+}
+
+function updateBulkDeleteState(){
+
+const bulkDeleteBtn = document.getElementById("bulkDeleteBtn");
+const selectAllStudents = document.getElementById("selectAllStudents");
+const hasSelection = selectedStudentIds.size > 0;
+
+bulkDeleteBtn.disabled = !hasSelection;
+if(selectAllStudents){
+
+selectAllStudents.checked = currentStudents.length > 0 && selectedStudentIds.size === currentStudents.length;
+
+}
+
+}
+
+function clearSelection(){
+
+selectedStudentIds = new Set();
+const selectAllStudents = document.getElementById("selectAllStudents");
+
+if(selectAllStudents){
+
+selectAllStudents.checked = false;
+
+}
+
+updateBulkDeleteState();
+
+}
+
+window.toggleStudentSelection = function(id, checked){
+
+if(checked){
+
+selectedStudentIds.add(id);
+
+}else{
+
+selectedStudentIds.delete(id);
+
+}
+
+updateBulkDeleteState();
+
+};
+
+window.toggleSelectAllStudents = function(checked){
+
+selectedStudentIds = checked ? new Set(currentStudents.map((student) => student.id)) : new Set();
+
+document.querySelectorAll(".student-select-checkbox").forEach((checkbox) => {
+
+checkbox.checked = checked;
+
+});
+
+updateBulkDeleteState();
+
+};
+
+function readLocalStudents(){
+
+const raw = localStorage.getItem(STUDENT_STORAGE_KEY);
+
+if(!raw){
+
+return [];
+
+}
+
+try{
+
+return JSON.parse(raw);
+
+}catch(error){
+
+return [];
+
+}
+
+}
+
+function writeLocalStudents(students){
+
+localStorage.setItem(STUDENT_STORAGE_KEY,JSON.stringify(students));
+
+}
+
+function fileToDataURL(file){
+
+return new Promise((resolve,reject)=>{
+
+const reader = new FileReader();
+
+reader.onload = () => resolve(reader.result);
+
+reader.onerror = () => reject(new Error("Could not read the selected photo."));
+
+reader.readAsDataURL(file);
+
+});
+
+}
+
+function normalizeKey(value){
+
+return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+
+}
+
+function pickField(row, aliases){
+
+const normalizedAliases = new Set(aliases.map(normalizeKey));
+
+for(const [key, value] of Object.entries(row)){
+
+if(normalizedAliases.has(normalizeKey(key))){
+
+return value;
+
+}
+
+}
+
+return "";
+
+}
+
+function normalizeHeaderKey(value){
+
+return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+
+}
+
+function rowToObject(row, headers){
+
+if(Array.isArray(row)){
+
+const objectRow = {};
+
+row.forEach((value, index) => {
+
+const header = headers && headers[index] ? String(headers[index]).trim() : String(index);
+
+objectRow[header] = value;
+
+});
+
+return objectRow;
+
+}
+
+return row || {};
+
+}
+
+function headerMatchScore(row){
+
+const expectedGroups = [
+    ["name of student", "student name", "nameofs", "name"],
+    ["division", "class"],
+    ["name of parent", "parent name", "father name", "father"],
+    ["phone no", "phone", "mobile no", "mobile"],
+    ["students id", "student id"],
+    ["uid"],
+    ["date of birth", "dob"],
+    ["transport name", "transport"],
+    ["place monthly amt", "monthly amt", "amount"],
+    ["name of mother", "mother name", "mother"],
+    ["gender"]
+];
+
+let score = 0;
+
+const rowValues = Array.isArray(row) ? row : Object.values(row || {});
+
+for(const cell of rowValues){
+
+const normalizedCell = normalizeHeaderKey(cell);
+
+if(!normalizedCell){
+
+continue;
+
+}
+
+for(const group of expectedGroups){
+
+if(group.some((alias) => normalizedCell === normalizeHeaderKey(alias))){
+
+score += 1;
+
+break;
+
+}
+
+}
+
+}
+
+return score;
+
+}
+
+function findHeaderRowIndex(rows){
+
+let bestIndex = 0;
+let bestScore = 0;
+
+rows.slice(0, 25).forEach((row, index) => {
+
+const score = headerMatchScore(row);
+
+if(score > bestScore){
+
+bestScore = score;
+bestIndex = index;
+
+}
+
+});
+
+return bestIndex;
+
+}
+
+function formatExcelDate(value){
+
+const raw = String(value || "").trim();
+
+if(!raw){
+
+return "";
+
+}
+
+if(/^-?\d+(?:\.\d+)?$/.test(raw)){
+
+const serial = Number(raw);
+
+if(serial > 0){
+
+const parsed = XLSX.SSF.parse_date_code(serial);
+
+if(parsed){
+
+return `${String(parsed.y).padStart(4, "0")}-${String(parsed.m).padStart(2, "0")}-${String(parsed.d).padStart(2, "0")}`;
+
+}
+
+}
+
+}
+
+return raw;
+
+}
+
+function normalizeStudentRecord(row, headers=[]){
+
+const sourceRow = rowToObject(row, headers);
+const classValue = String(pickField(sourceRow, ["standard", "class", "class name", "student class", "grade"]) || "").trim();
+const divisionValue = String(pickField(sourceRow, ["division", "div", "section", "sec", "batch"]) || "").trim();
+
+return {
+
+id: String(Date.now()) + Math.random().toString(16).slice(2),
+serialNo: String(pickField(sourceRow, ["si.no.", "si no", "sino", "serial", "serial no", "sl no", "slno"]) || "").trim(),
+admissionNo: String(pickField(sourceRow, ["admission", "admission no", "admission no.", "admission no:", "admission number", "admissionno", "adm no", "admno", "admn no", "admn no.", "admn.no", "admn.no."]) || "").trim(),
+name: String(pickField(sourceRow, ["name of student", "student name", "studentname", "nameofs", "name"]) || "").trim(),
+standard: classValue,
+division: divisionValue,
+parentName: String(pickField(sourceRow, ["name of parent", "parent name", "father name", "fathername", "father"]) || "").trim(),
+address: String(pickField(sourceRow, ["address"]) || "").trim(),
+phone: String(pickField(sourceRow, ["phone no", "phone", "phone number", "mobile no", "mobile"]) || "").trim(),
+route: String(pickField(sourceRow, ["route", "transport route", "bus route"]) || "").trim(),
+routeSecondary: String(pickField(sourceRow, ["route secondary", "secondary route", "route 2"]) || "").trim(),
+vehicleNo: String(pickField(sourceRow, ["vehicle no", "vehicleno", "vehicle number", "vehicle no.", "vehicle no:"]) || "").trim(),
+studentsId: String(pickField(sourceRow, ["students id", "student id", "students i"]) || "").trim(),
+mobileNo: String(pickField(sourceRow, ["mobile no", "mobile number", "mobile"]) || "").trim(),
+uid: String(pickField(sourceRow, ["uid"]) || "").trim(),
+dateOfBirth: formatExcelDate(pickField(sourceRow, ["date of birth", "date of bi", "dob"])),
+dateOfAdmission: formatExcelDate(pickField(sourceRow, ["date of ac", "date of admission", "doa"])),
+transportName: String(pickField(sourceRow, ["transport name", "transport"]) || "").trim(),
+place: String(pickField(sourceRow, ["place"]) || "").trim(),
+placeMonthlyAmt: String(pickField(sourceRow, ["place monthly amt", "monthly amt", "monthly amount", "amount"]) || "").trim(),
+placeMor: String(pickField(sourceRow, ["place mor", "place more", "place of mother"]) || "").trim(),
+motherName: String(pickField(sourceRow, ["name of mother", "mother name", "mothername", "mother"]) || "").trim(),
+familyId: String(pickField(sourceRow, ["family id"]) || "").trim(),
+gender: String(pickField(sourceRow, ["gender"]) || "").trim(),
+photo: ""
+
+};
+
+}
+
+function toImportedStudent(record){
+
+const importedClass = String(record.standard || record.division || "").trim();
+
+return {
+
+id: record.id,
+serialNo: record.serialNo,
+admissionNo: record.admissionNo,
+name: record.name,
+standard: record.standard,
+class: importedClass,
+division: record.division,
+parentName: record.parentName,
+fatherName: record.parentName,
+address: record.address,
+phone: record.phone,
+route: record.route,
+routeSecondary: record.routeSecondary,
+vehicleNo: record.vehicleNo,
+studentsId: record.studentsId,
+mobileNo: record.mobileNo,
+uid: record.uid,
+dateOfBirth: record.dateOfBirth,
+dateOfAdmission: record.dateOfAdmission,
+transportName: record.transportName,
+place: record.place,
+placeMonthlyAmt: record.placeMonthlyAmt,
+placeMor: record.placeMor,
+motherName: record.motherName,
+familyId: record.familyId,
+gender: record.gender,
+photo: record.photo
+
+};
+
+}
+
+function hasImportedData(record){
+
+return [
+
+record.serialNo,
+record.admissionNo,
+record.name,
+record.standard,
+record.division,
+record.class,
+record.parentName,
+record.address,
+record.phone,
+record.route,
+record.routeSecondary,
+record.vehicleNo,
+record.studentsId,
+record.mobileNo,
+record.uid,
+record.dateOfBirth,
+record.dateOfAdmission,
+record.transportName,
+record.place,
+record.placeMonthlyAmt,
+record.placeMor,
+record.motherName,
+record.familyId,
+record.gender
+
+].some((value) => String(value || "").trim() !== "");
+
+}
+
+async function saveStudents(records){
+
+if(hasFirebaseConfig && db){
+
+for(const record of records){
+
+    await addDoc(collection(db, "students"), record);
+
+}
+
+return;
+
+}
+
+const students = readLocalStudents();
+
+students.push(...records);
+
+writeLocalStudents(students);
+
+}
+
+window.logout = async function(){
+
+if(auth){
+
+await signOut(auth);
+
+}
+
+window.location.href="login.html";
+
+};
+
+window.addStudent = async function(){
+
+const formValues = getFormValues();
+
+try{
+
+if(!formValues.admissionNo || !formValues.name || !formValues.class){
+
+alert("Please fill Admission Number, Student Name, Class, and Division.");
+
+return;
+
+}
+
+if(editingStudentId && hasFirebaseConfig && db){
+
+const studentRef = doc(db, "students", editingStudentId);
+const updatePayload = {
+    admissionNo: formValues.admissionNo,
+    name: formValues.name,
+    fatherName: formValues.fatherName,
+    motherName: formValues.motherName,
+    phone: formValues.phone,
+    class: formValues.class,
+    division: formValues.division,
+    route: formValues.route,
+    routeSecondary: formValues.routeSecondary,
+    vehicleNo: formValues.vehicleNo,
+    photo: editingStudentPhoto
+};
+
+if(formValues.file){
+
+const storageRef = ref(storage, "students/" + Date.now() + "-" + formValues.file.name);
+
+await uploadBytes(storageRef, formValues.file);
+
+updatePayload.photo = await getDownloadURL(storageRef);
+
+}
+
+await updateDoc(studentRef, updatePayload);
+
+}else if(editingStudentId){
+
+const students = readLocalStudents();
+const existingStudent = students.find((student) => student.id === editingStudentId);
+
+if(!existingStudent){
+
+alert("Student not found.");
+
+return;
+
+}
+
+const photoURL = formValues.file
+    ? await fileToDataURL(formValues.file)
+    : editingStudentPhoto;
+
+updateLocalStudent(editingStudentId, getUpdatedStudent(existingStudent, formValues, photoURL));
+
+}else if(hasFirebaseConfig && db && storage){
+
+if(!formValues.file){
+
+alert("Select Photo");
+
+return;
+
+}
+
+const storageRef =
+ref(storage,
+"students/"+Date.now()+"-"+formValues.file.name);
+
+await uploadBytes(storageRef,formValues.file);
+
+const photoURL =
+await getDownloadURL(storageRef);
+
+await addDoc(collection(db,"students"),{
+
+admissionNo: formValues.admissionNo,
+name: formValues.name,
+fatherName: formValues.fatherName,
+motherName: formValues.motherName,
+phone: formValues.phone,
+class: formValues.class,
+division: formValues.division,
+route: formValues.route,
+routeSecondary: formValues.routeSecondary,
+vehicleNo: formValues.vehicleNo,
+photo:photoURL
+
+});
+
+}else{
+
+const photoURL = formValues.file
+    ? await fileToDataURL(formValues.file)
+    : "";
+
+const students = readLocalStudents();
+
+students.push({
+
+id: String(Date.now()),
+admissionNo: formValues.admissionNo,
+name: formValues.name,
+fatherName: formValues.fatherName,
+motherName: formValues.motherName,
+phone: formValues.phone,
+class: formValues.class,
+division: formValues.division,
+route: formValues.route,
+routeSecondary: formValues.routeSecondary,
+vehicleNo: formValues.vehicleNo,
+photo:photoURL
+
+});
+
+writeLocalStudents(students);
+
+}
+
+alert("Student Saved");
+
+setFormMode(null);
+
+location.reload();
+
+}catch(error){
+
+alert("Could not save the student. " + error.message);
+
+}
+
+};
+
+async function loadStudents(){
+let html="";
+currentStudents = [];
+clearSelection();
+
+try {
+    if(hasFirebaseConfig && db){
+const querySnapshot =
+await getDocs(collection(db,"students"));
+
+querySnapshot.forEach((docSnap)=>{
+
+const data = docSnap.data();
+currentStudents.push({ id: docSnap.id, ...data });
+const classSummary = data.class || data.standard || data.division || "-";
+const divisionSummary = data.division || "-";
+
+html += `
+
+<div class="student-card">
+
+<div class="student-info" style="padding-bottom:0;">
+
+<label style="display:flex;align-items:center;gap:8px;font-size:14px;">
+
+<input
+type="checkbox"
+class="student-select-checkbox"
+onchange="toggleStudentSelection('${docSnap.id}', this.checked)">
+
+Select
+
+</label>
+
+</div>
+
+<img src="${data.photo || PLACEHOLDER_PHOTO}">
+
+<div class="student-info">
+
+<h3>${data.name}</h3>
+
+<p><b>Adm No:</b> ${data.admissionNo}</p>
+
+<p><b>Class:</b> ${data.class}</p>
+
+<p><b>Division:</b> ${divisionSummary}</p>
+
+<p><b>Phone:</b> ${data.phone}</p>
+
+<button
+class="edit-btn"
+onclick="editStudent('${docSnap.id}')">
+
+Edit
+
+</button>
+
+<button
+class="delete-btn"
+onclick="deleteStudent('${docSnap.id}')">
+
+Delete
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}else{
+
+const students = readLocalStudents();
+
+currentStudents = students.map((student) => ({ ...student }));
+
+students.forEach((data)=>{
+const divisionSummary = data.division || "-";
+
+html += `
+
+<div class="student-card">
+
+<div class="student-info" style="padding-bottom:0;">
+
+<label style="display:flex;align-items:center;gap:8px;font-size:14px;">
+
+<input
+type="checkbox"
+class="student-select-checkbox"
+onchange="toggleStudentSelection('${data.id}', this.checked)">
+
+Select
+
+</label>
+
+</div>
+
+<img src="${data.photo || PLACEHOLDER_PHOTO}">
+
+<div class="student-info">
+
+<h3>${data.name}</h3>
+
+<p><b>Adm No:</b> ${data.admissionNo}</p>
+
+<p><b>Class:</b> ${data.class}</p>
+
+<p><b>Division:</b> ${divisionSummary}</p>
+
+<p><b>Phone:</b> ${data.phone}</p>
+
+<button
+class="edit-btn"
+onclick="editStudent('${data.id}')">
+
+Edit
+
+</button>
+
+<button
+class="delete-btn"
+onclick="deleteStudent('${data.id}')">
+
+Delete
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+});
+}
+} catch (error) {
+    console.error("Firestore Error:", error);
+    html = "<p style='color:red; text-align:center;'>Error loading data. Check console.</p>";
+}
+
+document.getElementById("studentList").innerHTML=html;
+updateBulkDeleteState();
+
+}
+
+function prepareExcelRecord(row, headers=[]){
+
+const record = normalizeStudentRecord(row, headers);
+
+return toImportedStudent(record);
+
+}
+
+window.importStudentsFromExcel = async function(){
+
+const file = document.getElementById("excelFile").files[0];
+
+if(!file){
+
+alert("Select an Excel file");
+
+return;
+
+}
+
+try{
+
+const buffer = await file.arrayBuffer();
+const workbook = XLSX.read(buffer, { type: "array" });
+const sheetName = workbook.SheetNames[0];
+const sheet = workbook.Sheets[sheetName];
+const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+const headerRowIndex = findHeaderRowIndex(rows);
+const headers = rows.length > headerRowIndex ? rows[headerRowIndex] : [];
+const dataRows = rows
+    .slice(headerRowIndex + 1)
+    .filter((row) => Array.isArray(row)
+        ? row.some((value) => String(value || "").trim() !== "")
+        : String(row || "").trim() !== "");
+const records = dataRows
+    .map((row) => prepareExcelRecord(row, headers))
+    .filter(hasImportedData);
+
+if(records.length === 0){
+
+alert("No valid student rows were found in the Excel file.");
+
+return;
+
+}
+
+await saveStudents(records);
+
+alert(`Imported ${records.length} student(s).`);
+
+location.reload();
+
+}catch(error){
+
+alert("Could not import the Excel file. " + error.message);
+
+}
+
+};
+
+window.deleteStudent = async function(id){
+
+if(confirm("Delete Student?")){
+
+if(hasFirebaseConfig && db){
+
+await deleteDoc(doc(db,"students",id));
+
+}else{
+
+const students = readLocalStudents().filter((student)=>student.id!==id);
+
+writeLocalStudents(students);
+
+}
+
+location.reload();
+
+}
+
+};
+
+window.deleteSelectedStudents = async function(){
+
+if(selectedStudentIds.size === 0){
+
+alert("Select at least one student.");
+
+return;
+
+}
+
+if(!confirm(`Delete ${selectedStudentIds.size} selected student(s)?`)){
+
+return;
+
+}
+
+try{
+
+if(hasFirebaseConfig && db){
+
+await Promise.all(Array.from(selectedStudentIds).map((id) => deleteDoc(doc(db, "students", id))));
+
+}else{
+
+const remainingStudents = readLocalStudents().filter((student) => !selectedStudentIds.has(student.id));
+
+writeLocalStudents(remainingStudents);
+
+}
+
+clearSelection();
+loadStudents();
+
+}catch(error){
+
+alert("Could not delete the selected students. " + error.message);
+
+}
+
+};
+
+window.editStudent = function(id){
+
+const student = currentStudents.find((item) => item.id === id);
+
+if(!student){
+
+alert("Student not found.");
+
+return;
+
+}
+
+setFormMode(student);
+
+window.scrollTo({ top: 0, behavior: "smooth" });
+
+};
+
+window.cancelEdit = function(){
+
+setFormMode(null);
+
+};
+
+loadStudents();
+
+</script>
+
+</body>
+</html>
